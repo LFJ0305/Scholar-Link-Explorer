@@ -1,3 +1,4 @@
+from services.profile_service import get_or_create_profile
 import streamlit as st
 
 st.set_page_config(
@@ -20,15 +21,19 @@ with st.container(border=True):
         )
         submitted = st.form_submit_button("Submit")
 
+from scraper import scrape_profile
+
 if submitted:
-    cleaned_url = profile_url.strip()
+    if profile_url.strip():
+        st.success("Processing profile...")
 
-    if cleaned_url:
-        st.session_state.submitted_url = cleaned_url
-        st.success("Profile URL received.")
+        data = get_or_create_profile(profile_url)
+
+        st.subheader("Extracted Data")
+
+        st.write("**Name:**", data["name"])
+        st.write("**Bio:**", data["bio"])
+        st.write("**Fields:**", data["fields"])
+        st.write("**Research Interests:**", data["research_interests"])
     else:
-        st.error("Please paste a profile URL before submitting.")
-
-if st.session_state.submitted_url:
-    st.subheader("Current input")
-    st.code(st.session_state.submitted_url, language=None)
+        st.error("Please enter a valid profile URL.")
